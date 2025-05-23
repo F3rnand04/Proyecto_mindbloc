@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindBloc</title>
+    <meta name="description" content="MindBloc: Nunca más te olvides de algo importante. Tu bloc de notas con autoguardado, recordatorios y banners publicitarios.">
+    <meta name="theme-color" content="#E9573F"> 
+    
+    <link rel="manifest" id="dynamicManifestLink">
+
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
+    <style>
+        /* Variables CSS para facilitar el cambio de tema y consistencia */
+        :root {
+            /* Tema Predeterminado (Cálido) - Inspirado en la imagen */
+            --primary-color: #E9573F; /* Rojo/Naranja para acentos y el botón '+' */
+            --secondary-color: #8cc152; /* Verde para acciones positivas */
+            --accent-color: #e9573f; /* Rojo/Naranja para acentos o urgencia */
+            --bg-color: #F8F4E3; /* Fondo muy claro, similar al del cuerpo del teléfono */
+            --card-bg-color: #FFFAF0; /* Fondo de tarjetas/elementos, más claro */
+            --text-color: #4A4A4A; /* Texto oscuro principal */
+            --text-light-color: #7A7A7A; /* Texto secundario más claro */
+            --border-color: #D2B48C; /* Color de bordes, similar al marco */
+            --shadow-light: 0 4px 8px rgba(0,0,0,0.15); /* Sombra más pronunciada */
+            --border-radius: 12px; /* Bordes más redondeados */
+            --font-family: 'Arial', sans-serif;
+            --transition-speed: 0.3s;
+
+            /* Colores específicos del diseño de la imagen para elementos clave */
+            --header-bg: #F8F4E3; /* Fondo de la cabecera, igual que el cuerpo */
+            --tab-active-bg: #FFDAB9; /* Color de la pestaña activa (Notas) */
+            --tab-inactive-bg: #F5DEB3; /* Color de las pestañas inactivas */
+            --tab-text-color: #6B4F4F; /* Color del texto de las pestañas */
+            --note-card-bg-1: #F5DEB3; /* Fondo de la primera tarjeta de nota */
+            --note-card-bg-2: #F0E68C; /* Fondo de la segunda tarjeta de nota (ej. Meeting notes) */
+            --agenda-button-bg: #D2B48C; /* Fondo del botón de Agenda */
+            --plus-button-bg: #E9573F; /* Color del botón de añadir (+) */
+            --plus-button-text: white;
+        }
+
+        /* Tema Oscuro */
+        [data-theme="dark"] {
+            --primary-color: #66b3ff;
+            --secondary-color: #a0d468;
+            --accent-color: #ff8a80;
+            --bg-color: #2c3e50; /* Azul oscuro */
+            --card-bg-color: #34495e; /* Azul más oscuro */
+            --text-color: #ecf0f1; /* Texto blanco */
+            --text-light-color: #bdc3c7; /* Texto gris claro */
+            --border-color: #4a647d;
+            --shadow-light: 0 2px 5px rgba(0,0,0,0.3);
+
+            /* Ajustes para tema oscuro */
+            --header-bg: #2c3e50;
+            --tab-active-bg: #4a647d;
+            --tab-inactive-bg: #34495e;
+            --tab-text-color: #ecf0f1;
+            --note-card-bg-1: #3a506a;
+            --note-card-bg-2: #4a607a;
+            --agenda-button-bg: #5a708a;
+            --plus-button-bg: #ff8a80;
+            --plus-button-text: #2c3e50;
+        }
+
+        /* Tema Claro (Original) */
+        [data-theme="default"] {
+            --primary-color: #4a89dc;
+            --secondary-color: #8cc152;
+            --accent-color: #e9573f;
+            --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff;
+            --text-color: #333333;
+            --text-light-color: #666666;
+            --border-color: #e0e0e0;
+            --shadow-light: 0 2px 5px rgba(0,0,0,0.1);
+
+            --header-bg: #f0f2f5;
+            --tab-active-bg: #4a89dc;
+            --tab-inactive-bg: #e0e0e0;
+            --tab-text-color: #333333;
+            --note-card-bg-1: #ffffff;
+            --note-card-bg-2: #f9f9f9;
+            --agenda-button-bg: #4a89dc;
+            --plus-button-bg: #4a89dc;
+            --plus-button-text: white;
+        }
+
+        /* Tema Frío */
+        [data-theme="cool"] {
+            --primary-color: #66B3FF;
+            --secondary-color: #4CAF50;
+            --accent-color: #FF7043;
+            --bg-color: #E0F2F7;
+            --card-bg-color: #FFFFFF;
+            --text-color: #263238;
+            --text-light-color: #546E7A;
+            --border-color: #B2EBF2;
+            --shadow-light: 0 2px 5px rgba(0,0,0,0.1);
+
+            --header-bg: #E0F2F7;
+            --tab-active-bg: #B3E5FC;
+            --tab-inactive-bg: #E1F5FE;
+            --tab-text-color: #01579B;
+            --note-card-bg-1: #E1F5FE;
+            --note-card-bg-2: #B3E5FC;
+            --agenda-button-bg: #4FC3F7;
+            --plus-button-bg: #FF7043;
+            --plus-button-text: white;
+        }
+
+
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Eliminar padding del body para que el diseño ocupe todo el ancho */
+            max-width: 100%; /* Permitir que ocupe todo el ancho disponible */
+            margin: 0 auto;
+            box-sizing: border-box;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            align-items: center; /* Centrar el contenido si el ancho es menor que el max-width */
+            justify-content: flex-start; /* Alinear el contenido al inicio verticalmente */
+        }
+
+        /* Contenedor principal que simula la pantalla del teléfono */
+        .app-container {
+            width: 100%;
+            max-width: 450px; /* Ancho máximo para simular un móvil/tablet */
+            min-height: 100vh; /* Ocupa al menos toda la altura de la ventana */
+            background-color: var(--bg-color);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* Sombra sutil */
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Scroll dentro de la aplicación */
+            box-sizing: border-box;
+            padding-bottom: 60px; /* Espacio para el footer fijo */
+        }
+
+        /* La barra de estado con reloj/wifi/batería se elimina */
+        /* .status-bar { ... } */
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--header-bg);
+            color: var(--text-color);
+            position: sticky; /* Fija la cabecera principal */
+            top: 0; /* Ahora está en la parte superior */
+            z-index: 95;
+        }
+
+        .main-header h1 {
+            font-size: 2.2em;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .theme-toggle { /* Estilos para el botón de cambio de tema */
+            background-color: var(--primary-color); /* Fondo unicolor */
+            color: white; /* Color del texto/icono */
+            border: none;
+            border-radius: 50%; /* Forma redonda */
+            width: 45px;
+            height: 45px;
+            font-size: 1.8em; /* Tamaño del icono */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-light); /* Añadir sombra para que se vea como un botón */
+            transition: background-color var(--transition-speed), transform 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background-color: #d64a36; /* Un tono ligeramente diferente al pasar el ratón */
+        }
+
+        .segmented-control {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--header-bg);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky; /* Fija las pestañas debajo de la cabecera */
+            top: 65px; /* Ajustar: altura aproximada de main-header (10+10+45=65px) */
+            z-index: 90;
+        }
+
+        .segmented-control button {
+            flex: 1;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--tab-inactive-bg);
+            color: var(--tab-text-color);
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            margin: 0 5px;
+        }
+
+        .segmented-control button.active {
+            background-color: var(--tab-active-bg);
+            color: var(--text-color);
+            box-shadow: var(--shadow-light);
+        }
+
+        /* Contenido de las pestañas */
+        .tab-content {
+            flex-grow: 1;
+            padding: 15px;
+            display: none; /* Oculto por defecto */
+            overflow-y: auto; /* Permite scroll individual en cada tab */
+            background-color: var(--bg-color);
+        }
+
+        .tab-content.active {
+            display: block; /* Muestra la pestaña activa */
+        }
+
+        .note-section, .reminders-section, .note-list-section, .install-app-section, .amounts-section {
+            background-color: var(--card-bg-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 20px;
+            transition: background-color var(--transition-speed);
+        }
+        
+        /* Estilos específicos para las tarjetas de notas en el nuevo diseño */
+        .note-item {
+            background-color: var(--note-card-bg-1);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.95em;
+            color: var(--text-color);
+            border: none;
+        }
+        .note-item:nth-child(even) { /* Para alternar colores como en la imagen */
+            background-color: var(--note-card-bg-2);
+        }
+
+        .note-item-content {
+            flex-grow: 1;
+            padding-right: 0;
+            width: 100%;
+        }
+
+        .note-item-content h3 {
+            margin: 0 0 8px 0;
+            color: var(--text-color);
+            font-size: 1.2em;
+        }
+
+        .note-item-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--text-light-color);
+        }
+
+        .note-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .note-item-actions button {
+            background: none;
+            border: none;
+            font-size: 0.9em;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+            color: var(--primary-color);
+        }
+
+        .note-item-actions .edit-note {
+            color: var(--primary-color);
+        }
+        .note-item-actions .edit-note:hover {
+            background-color: rgba(74, 137, 220, 0.1);
+        }
+
+        .note-item-actions .delete-note,
+        .reminder-item .delete-reminder,
+        .amount-item .delete-amount {
+            color: var(--accent-color);
+        }
+        .note-item-actions .delete-note:hover,
+        .reminder-item .delete-reminder:hover,
+        .amount-item .delete-amount:hover {
+            background-color: rgba(233, 87, 63, 0.1);
+        }
+        .note-item-actions .schedule-note {
+            color: var(--secondary-color);
+        }
+        .note-item-actions .schedule-note:hover {
+            background-color: rgba(140, 193, 82, 0.1);
+        }
+
+        /* Estilos para la nueva sección de montos */
+        .amount-item {
+            background-color: var(--note-card-bg-1);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.95em;
+            color: var(--text-color);
+            border: none;
+        }
+        .amount-item:nth-child(even) {
+            background-color: var(--note-card-bg-2);
+        }
+
+        .amount-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .amount-item-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: var(--primary-color);
+        }
+
+        .amount-item-balance {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .amount-item-balance.positive {
+            color: var(--secondary-color); /* Verde para saldo positivo (a tu favor) */
+        }
+        .amount-item-balance.negative {
+            color: var(--accent-color); /* Rojo para saldo negativo (debes) */
+        }
+
+        .amount-item-details {
+            width: 100%;
+            font-size: 0.9em;
+            color: var(--text-light-color);
+            margin-bottom: 10px;
+        }
+
+        .amount-item-payments {
+            width: 100%;
+            font-size: 0.85em;
+            color: var(--text-light-color);
+            margin-top: 5px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 5px;
+        }
+        .amount-item-payments strong {
+            color: var(--text-color);
+        }
+
+        .amount-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .amount-item-actions button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+            margin-left: 10px;
+        }
+        .amount-item-actions button:hover {
+            background-color: #3b7ad6;
+        }
+        .amount-item-actions .delete-amount {
+            background-color: var(--accent-color);
+        }
+        .amount-item-actions .delete-amount:hover {
+            background-color: #d64a36;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="datetime-local"],
+        input[type="date"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            line-height: 1.5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            resize: vertical;
+            box-sizing: border-box;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            height: 150px;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 137, 220, 0.2);
+        }
+
+        .note-section button,
+        .reminders-section button,
+        .install-app-section button,
+        .amounts-section button,
+        .modal-content button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color var(--transition-speed);
+            margin-top: 5px;
+        }
+
+        .note-section button:hover,
+        .reminders-section button:hover,
+        .install-app-section button:hover,
+        .amounts-section button:hover,
+        .modal-content button:hover {
+            background-color: #3b7ad6;
+        }
+
+        .reminder-list {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .reminder-item {
+            background-color: var(--card-bg-color);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-light);
+        }
+
+        /* Banner Carousel */
+        .banner-carousel {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: var(--card-bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .banner-carousel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Modal Styles (General) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            color: var(--text-color);
+            animation: fadeIn 0.3s ease-out;
+            box-sizing: border-box;
+        }
+
+        .modal-content h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .modal-content .instructions {
+            margin-top: 20px;
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-content .instructions h4 {
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .instructions ol {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .instructions li {
+            margin-bottom: 8px;
+            color: var(--text-light-color);
+        }
+
+        .modal-content .modal-note {
+            font-size: 0.85em;
+            color: var(--text-light-color);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .close-button {
+            color: var(--text-light-color);
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            transition: var(--transition-speed);
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--text-color);
+        }
+
+        /* Reminder Message Box Specific Styles */
+        #reminderMessageBox {
+            z-index: 1001;
+        }
+
+        #reminderMessageBox .modal-content {
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 0 15px rgba(140, 193, 82, 0.5);
+        }
+
+        #reminderMessageBox .modal-content h3 {
+            color: var(--secondary-color);
+        }
+
+        #whatsappDisclaimer {
+            font-size: 0.85em;
+            color: var(--accent-color);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            color: var(--text-light-color);
+            font-size: 0.9em;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            position: sticky; /* Fija el footer en la parte inferior */
+            bottom: 0;
+            width: 100%;
+            background-color: var(--bg-color); /* Asegura que el footer tenga un fondo */
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05); /* Sombra superior para separarlo */
+            box-sizing: border-box;
+        }
+
+        /* Media Queries para responsividad */
+        @media (min-width: 601px) { /* Estilos para pantallas más grandes que un móvil */
+            body {
+                padding: 20px; /* Añadir padding para el formato web */
+            }
+            .app-container {
+                border-radius: 12px; /* Bordes redondeados para el contenedor principal en web */
+                box-shadow: 0 0 20px rgba(0,0,0,0.1); /* Sombra para el contenedor principal en web */
+            }
+        }
+
+        @media (max-width: 600px) { /* Estilos para pantallas pequeñas (móviles) */
+            body {
+                padding: 0; /* Eliminar padding del body para que la app ocupe toda la pantalla */
+                max-width: 100%;
+            }
+            .app-container {
+                max-width: 100%; /* Ocupa todo el ancho disponible */
+                min-height: 100vh; /* Ocupa toda la altura de la ventana */
+                border-radius: 0; /* Eliminar bordes redondeados para un look de app nativa */
+                box-shadow: none; /* Eliminar sombra para un look de app nativa */
+            }
+            .main-header, .segmented-control {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            .main-header h1 {
+                font-size: 1.8em;
+            }
+            .theme-toggle { /* Ajuste para el botón de tema en móviles */
+                width: 40px;
+                height: 40px;
+                font-size: 1.6em;
+            }
+            .segmented-control button {
+                padding: 6px 10px;
+                font-size: 0.9em;
+                margin: 0 3px;
+            }
+            .tab-content {
+                padding: 10px;
+            }
+            .note-section, .reminders-section, .note-list-section, .install-app-section, .amounts-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .banner-carousel {
+                height: 60px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <div class="main-header">
+            <h1>MindBloc</h1>
+            <button class="theme-toggle" aria-label="Alternar tema de colores"></button>
+        </div>
+
+        <div class="segmented-control">
+            <button id="tabPrincipal" class="active">Notas y Agenda</button>
+            <button id="tabFinanzas">Finanzas y Más</button>
+        </div>
+
+        <div id="contentPrincipal" class="tab-content active">
+            <section class="note-section">
+                <h2>Crear/Editar Nota</h2>
+                <input type="text" id="noteTitle" placeholder="Título de la nota" maxlength="50" />
+                <textarea id="noteContent" placeholder="Escribe aquí tus notas..."></textarea>
+                <label for="noteThirdPartyPhoneNumber" style="display: block; margin-bottom: 5px; color: var(--text-light-color); font-size: 0.9em;">Número de WhatsApp para enviar esta nota (opcional):</label>
+                <input type="tel" id="noteThirdPartyPhoneNumber" placeholder="Ej: 584123456789" />
+                <button id="saveNoteBtn">Guardar Nota</button>
+                <button id="newNoteBtn">Nueva Nota</button>
+            </section>
+
+            <section class="banner-carousel">
+                <iframe id="bannerIframe" srcdoc="" title="Banner Publicitario"></iframe>
+            </section>
+
+            <section class="reminders-section">
+                <h2>Configurar Recordatorio</h2>
+                <input type="text" id="reminderText" placeholder="¿Qué evento o tarea necesitas agendar?" />
+                <input type="datetime-local" id="reminderDateTime" />
+                
+                <label style="display: block; margin-top: 10px; margin-bottom: 10px; color: var(--text-color);">Frecuencia del Recordatorio:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="radio" id="freqOnce" name="reminderFrequency" value="once" checked>
+                    <label for="freqOnce">Una sola vez</label>
+
+                    <input type="radio" id="freqDaily" name="reminderFrequency" value="daily">
+                    <label for="freqDaily">Diario</label>
+
+                    <input type="radio" id="freqHourly" name="reminderFrequency" value="hourly">
+                    <label for="freqHourly">Cada</label>
+                    <input type="number" id="hourlyValue" min="1" value="1" style="width: 60px; padding: 8px; border-radius: 5px; border: 1px solid var(--border-color); margin-left: 5px;">
+                    <label for="hourlyValue">horas</label>
+                </div>
+                <div id="recurrenceEndDateContainer" style="margin-top: 10px; display: none;">
+                    <label for="recurrenceEndDate" style="display: block; margin-bottom: 5px; color: var(--text-light-color); font-size: 0.9em;">Fecha de fin (opcional):</label>
+                    <input type="date" id="recurrenceEndDate" style="width: calc(100% - 22px);">
+                </div>
+
+                <button id="addReminderBtn">Añadir a la Agenda</button>
+                <div style="margin-top: 20px;">
+                    <p id="whatsappDisclaimer">
+                        * Las notificaciones por WhatsApp no son automáticas. Al llegar la hora, podrás enviar un mensaje desde la app.
+                    </p>
+                </div>
+            </section>
+
+            <section class="note-list-section">
+                <h2>Tus Notas</h2>
+                <div id="notesDisplay" class="notes-display">
+                    </div>
+            </section>
+
+            <section class="reminders-section">
+                <h2>Tu Agenda</h2>
+                <div class="reminder-list" id="reminderList">
+                    </div>
+            </section>
+        </div>
+
+        <div id="contentFinanzas" class="tab-content">
+            <section class="amounts-section">
+                <h2>Control de Montos</h2>
+                <input type="text" id="amountDescription" placeholder="Descripción (Ej: Deuda de Juan, Pago de alquiler)" maxlength="100" />
+                <input type="number" id="amountTotal" placeholder="Monto total (Ej: 150.00)" step="0.01" min="0" />
+                
+                <label style="display: block; margin-bottom: 5px; color: var(--text-light-color); font-size: 0.9em;">Tipo de Monto:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="radio" id="amountTypeDebt" name="amountType" value="debt" checked>
+                    <label for="amountTypeDebt">Deuda (me deben)</label>
+                    <input type="radio" id="amountTypePayment" name="amountType" value="payment">
+                    <label for="amountTypePayment">Pago (debo pagar)</label>
+                </div>
+
+                <label for="amountDueDate" style="display: block; margin-bottom: 5px; color: var(--text-light-color); font-size: 0.9em;">Fecha y Hora de Cobro/Pago:</label>
+                <input type="datetime-local" id="amountDueDate" /> 
+
+                <label for="amountPhoneNumber" style="display: block; margin-bottom: 5px; color: var(--text-light-color); font-size: 0.9em;">Número de WhatsApp (opcional):</label>
+                <input type="tel" id="amountPhoneNumber" placeholder="Ej: 584123456789" />
+
+                <button id="addAmountBtn">Añadir Monto</button>
+            </section>
+
+            <section class="amounts-list-section amounts-section">
+                <h2>Tus Registros de Montos</h2>
+                <div id="amountsDisplay" class="amounts-display">
+                    <p style="text-align: center; color: var(--text-light-color);">No hay montos registrados.</p>
+                </div>
+            </section>
+
+            <section class="banner-carousel">
+                <iframe id="bannerIframe" srcdoc="" title="Banner Publicitario"></iframe>
+            </section>
+
+            <section class="install-app-section">
+                <h2>Acceso Rápido desde tu Móvil</h2>
+                <p>¡Instala MindBloc en tu pantalla de inicio para acceder al instante!</p>
+                <button id="installAppBtn">
+                    <span style="font-weight: bold;">MindBloc</span>
+                </button>
+            </section>
+        </div>
+    </div> 
+    <footer>
+        Hecho con ❤️ para ti
+    </footer>
+
+    <div id="installModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal-id="installModal">&times;</span>
+            <h3>Instalar MindBloc en tu Dispositivo</h3>
+            <p>Sigue las instrucciones para tu sistema operativo:</p>
+            <div class="instructions">
+                <h4>Android (Chrome, Edge, Firefox):</h4>
+                <ol>
+                    <li>Abre el menú del navegador (generalmente <strong>⋮</strong> o <strong>☰</strong>).</li>
+                    <li>Busca y selecciona "Añadir a pantalla de inicio" o "Instalar aplicación".</li>
+                    <li>Confirma la instalación.</li>
+                </ol>
+                <h4>iOS (Safari):</h4>
+                <ol>
+                    <li>Toca el icono de <strong>Compartir</strong> (<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy4wcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmRaiG9pbiIgc3Ryb2tlLWxpbmVqb2luPSJyb2VuZCI+PHBhdGggZD0iTTQgMTJ2OGEybTIgMiAyIDJoMTJhMiAyIDAgMCAwMi0yLTJWMjBMMjAgOEwxMiAwTDRIOEwxMS41IDMuOTlWMjAiLz48L2g+PC9zZz4=" alt="Icono de Compartir">) en la barra de navegación.</li>
+                    <li>Desplázate hacia abajo y selecciona "Añadir a pantalla de inicio".</li>
+                    <li>Toca "Añadir" en la esquina superior derecha.</li>
+                </ol>
+            </div>
+            <p class="modal-note">Si no ves la opción "Instalar aplicación", tu navegador ya te habrá ofrecido instalarla o no la soporta directamente.</p>
+        </div>
+    </div>
+
+    <div id="addPaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal-id="addPaymentModal">&times;</span>
+            <h3>Añadir Abono</h3>
+            <p>Abonando a: <strong id="paymentModalDescription"></strong></p>
+            <p>Saldo actual: <strong id="paymentModalBalance"></strong></p>
+            <input type="number" id="paymentAmountInput" placeholder="Monto del abono" step="0.01" min="0" />
+            <button id="savePaymentBtn">Guardar Abono</button>
+        </div>
+    </div>
+
+    <div id="reminderMessageBox" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal-id="reminderMessageBox">&times;</span>
+            <h3>🔔 ¡Recordatorio de MindBloc!</h3>
+            <p id="reminderMessageContent" style="font-size: 1.2em; text-align: center; margin-top: 15px; font-weight: bold;"></p>
+            <p style="font-size: 0.9em; text-align: center; color: var(--text-light-color); margin-top: 20px;">¡Es hora de esto!</p>
+            <button id="sendWhatsappBtn" style="margin-top: 20px; background-color: #25d366;">Enviar por WhatsApp</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Contenido del Manifest (JSON) ---
+        const manifestContent = {
+            "name": "MindBloc",
+            "short_name": "MindBloc",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#F8F4E3", /* Ajustado al nuevo color de fondo */
+            "theme_color": "#E9573F", /* Ajustado al color principal del diseño */
+            "description": "MindBloc: Nunca más te olvides de algo importante. Tu bloc de notas con autoguardado, recordatorios y banners publicitarios.",
+            "icons": [
+                {
+                    "src": "icon-192x192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "icon-512x512.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+
+        // --- Contenido del Service Worker (JavaScript) ---
+        const swContent = `
+            const CACHE_NAME = 'mindbloc-v22'; // Incrementado para forzar la actualización del caché
+            const urlsToCache = [
+                './', // Cacha el propio HTML (la app completa)
+                'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js', // Cacha Tone.js
+                // Los iconos aún son archivos externos, si no se base64 codifican
+                './icon-192x192.png',
+                './icon-512x512.png',
+                './favicon.ico'
+            ];
+
+            self.addEventListener('install', (event) => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            console.log('Service Worker: Caché abierta y recursos añadidos.');
+                            return cache.addAll(urlsToCache);
+                        })
+                        .catch(error => {
+                            console.error('Service Worker: Fallo al añadir recursos a la caché:', error);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', (event) => {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then((response) => {
+                            if (response) {
+                                return response;
+                            }
+                            const fetchRequest = event.request.clone();
+                            return fetch(fetchRequest).then(
+                                response => {
+                                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                                        return response;
+                                    }
+                                    const responseToCache = response.clone();
+                                    caches.open(CACHE_NAME)
+                                        .then(cache => {
+                                            cache.put(event.request, responseToCache);
+                                        });
+                                    return response;
+                                }
+                            );
+                        })
+                );
+            });
+
+            self.addEventListener('activate', (event) => {
+                const cacheWhitelist = [CACHE_NAME];
+                event.waitUntil(
+                    caches.keys().then((cacheNames) => {
+                        return Promise.all(
+                            cacheNames.map((cacheName) => {
+                                if (cacheWhitelist.indexOf(cacheName) === -1) {
+                                    console.log('Service Worker: Eliminando caché antigua:', cacheName);
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    })
+                );
+            });
+
+            self.addEventListener('push', (event) => {
+                const data = event.data.json();
+                console.log('Service Worker: Notificación Push recibida:', data);
+
+                const title = data.title || 'MindBloc';
+                const options = {
+                    body: data.body || 'Tienes un nuevo recordatorio.',
+                    icon: data.icon || 'icon-192x192.png',
+                    badge: data.badge || 'icon-192x192.png'
+                };
+
+                event.waitUntil(self.registration.showNotification(title, options));
+            });
+
+            self.addEventListener('notificationclick', (event) => {
+                event.notification.close();
+                event.waitUntil(
+                    clients.openWindow(event.notification.data.url || './')
+                );
+            });
+        `;
+
+        // --- Contenido de Banners (JavaScript Array) ---
+        const embeddedBannersData = [
+            {
+                "id": "banner1",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#ffeb3b; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">🚀 ¡Oferta! 20% Dcto. en envíos. <a href=\"https://ejemplo.com/envios\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Más info</a></div>"
+            },
+            {
+                "id": "banner2",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#e0f2f7; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">💡 ¿Necesitas un préstamo? ¡Consulta nuestras tasas! <a href=\"https://ejemplo.com/prestamos\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Solicita aquí</a></div>"
+            },
+            {
+                "id": "banner3",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#c8e6c9; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">🛒 Descubre productos venezolanos en nuestra tienda online. <a href=\"https://ejemplo.com/tienda\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Visita</a></div>"
+            },
+            {
+                "id": "banner4",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#d1c4e9; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">📈 Asesoría financiera GRATIS para tu negocio. <a href=\"https://ejemplo.com/asesoria\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Contáctanos</a></div>"
+            },
+            {
+                "id": "banner5",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#ffccbc; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">✈️ Boletos aéreos a precios increíbles. ¡Reserva ya! <a href=\"https://ejemplo.com/vuelos\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Ver ofertas</a></div>"
+            },
+            {
+                "id": "banner6",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#b2ebf2; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">📱 Recarga tu saldo móvil internacionalmente. <a href=\"https://ejemplo.com/recargas\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Recarga</a></div>"
+            },
+            {
+                "id": "banner7",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#dcedc8; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">🏠 Encuentra tu hogar ideal. ¡Propiedades en venta y alquiler! <a href=\"https://ejemplo.com/propiedades\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Explora</a></div>"
+            },
+            {
+                "id": "banner8",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#f8bbd0; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">🎁 Regalos originales para toda ocasión. ¡Envío a domicilio! <a href=\"https://ejemplo.com/regalos\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Comprar</a></div>"
+            },
+            {
+                "id": "banner9",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#c5cae9; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">💻 Cursos de programación online. ¡Aprende desde casa! <a href=\"https://ejemplo.com/cursos\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Inscríbete</a></div>"
+            },
+            {
+                "id": "banner10",
+                "htmlContent": "<div style=\"display:flex; align-items:center; justify-content:center; height:100%; background-color:#ffe0b2; color:#333; font-weight:bold; font-size:1.1em; border-radius:5px;\">🚗 Alquiler de vehículos. ¡Explora con libertad! <a href=\"https://ejemplo.com/alquiler\" target=\"_blank\" style=\"margin-left:5px; color:#333; text-decoration:none;\">Reserva</a></div>"
+            }
+        ];
+
+
+        // --- Variables y Elementos del DOM ---
+        const noteTitle = document.getElementById('noteTitle');
+        const noteContent = document.getElementById('noteContent');
+        const noteThirdPartyPhoneNumber = document.getElementById('noteThirdPartyPhoneNumber'); // Input para número de tercero
+        const saveNoteBtn = document.getElementById('saveNoteBtn');
+        const newNoteBtn = document.getElementById('newNoteBtn');
+        const notesDisplay = document.getElementById('notesDisplay');
+
+        const reminderText = document.getElementById('reminderText');
+        const reminderDateTime = document.getElementById('reminderDateTime');
+        const addReminderBtn = document.getElementById('addReminderBtn');
+        const reminderList = document.getElementById('reminderList');
+        
+        // Elementos para la frecuencia de recordatorio
+        const freqOnce = document.getElementById('freqOnce');
+        const freqDaily = document.getElementById('freqDaily'); 
+        const freqHourly = document.getElementById('freqHourly');
+        const hourlyValue = document.getElementById('hourlyValue');
+        const recurrenceEndDate = document.getElementById('recurrenceEndDate');
+        const recurrenceEndDateContainer = document.getElementById('recurrenceEndDateContainer');
+
+        const themeToggle = document.querySelector('.theme-toggle');
+        const htmlElement = document.documentElement;
+        const bannerIframe = document.getElementById('bannerIframe');
+
+        // Elementos del modal de instalación
+        const installAppBtn = document.getElementById('installAppBtn');
+        const installModal = document.getElementById('installModal');
+        // Elementos del modal de mensaje de recordatorio
+        const reminderMessageBox = document.getElementById('reminderMessageBox');
+        const reminderMessageContent = document.getElementById('reminderMessageContent');
+        const sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
+
+        // Elementos de las pestañas
+        const tabPrincipalBtn = document.getElementById('tabPrincipal');
+        const tabFinanzasBtn = document.getElementById('tabFinanzas');
+        const contentPrincipal = document.getElementById('contentPrincipal');
+        const contentFinanzas = document.getElementById('contentFinanzas');
+
+        // Elementos para la gestión de montos
+        const amountDescriptionInput = document.getElementById('amountDescription');
+        const amountTotalInput = document.getElementById('amountTotal');
+        const amountTypeDebt = document.getElementById('amountTypeDebt'); // Radio button para tipo "Deuda"
+        const amountTypePayment = document.getElementById('amountTypePayment'); // Radio button para tipo "Pago"
+        const amountDueDateInput = document.getElementById('amountDueDate'); // Campo de fecha y hora de cobro/pago
+        const amountPhoneNumber = document.getElementById('amountPhoneNumber'); // Campo de número de WhatsApp para montos
+        const addAmountBtn = document.getElementById('addAmountBtn');
+        const amountsDisplay = document.getElementById('amountsDisplay');
+        const addPaymentModal = document.getElementById('addPaymentModal');
+        const paymentModalDescription = document.getElementById('paymentModalDescription');
+        const paymentModalBalance = document.getElementById('paymentModalBalance');
+        const paymentAmountInput = document.getElementById('paymentAmountInput');
+        const savePaymentBtn = document.getElementById('savePaymentBtn');
+
+
+        // --- Datos de la Aplicación ---
+        let notes = []; // Almacenará las notas como objetos { id, title, content, date, thirdPartyPhoneNumber }
+        // Los recordatorios ahora pueden ser únicos o recurrentes
+        let reminders = []; // Almacenará objetos de recordatorio
+        // Nuevo: Almacenará objetos de montos { id, description, totalAmount, currentBalance, payments: [{amount, date}], dueDate, phoneNumber, type, reminderId }
+        let amounts = []; 
+        let editingNoteId = null; // Para saber si estamos editando una nota existente
+        let currentAmountIdForPayment = null; // Para saber a qué monto se está añadiendo un abono
+
+        let currentActiveReminder = null; // Almacenará el objeto del recordatorio que se acaba de activar
+
+        const MAX_NOTES = 100; // Límite de 100 notas
+        const MAX_AMOUNTS = 50; // Límite de 50 registros de montos
+
+        // Banners publicitarios (ahora se usan directamente de embeddedBannersData)
+        let banners = embeddedBannersData.map(item => item.htmlContent);
+        let currentBannerIndex = 0;
+        const bannerIntervalTime = 4000; // 4 segundos
+
+        // Definición de temas de color
+        const themes = [
+            'warm',    // Tema cálido (inspirado en la imagen) - Ahora es el predeterminado
+            'default', // Tema claro original
+            'dark',    // Tema oscuro
+            'cool'     // Tema frío
+        ];
+        let currentThemeIndex = 0; // Índice del tema actual
+
+        // --- Configuración de Sonido (Tone.js) ---
+        // Inicializar un sintetizador simple
+        const synth = new Tone.Synth().toDestination();
+
+        function playNotificationSound() {
+            // Reproducir una nota C4 corta y simple
+            synth.triggerAttackRelease("C4", "8n");
+        }
+
+        // --- Gestión de Notas ---
+        function saveNotesToLocalStorage() {
+            localStorage.setItem('mindbloc_notes', JSON.stringify(notes));
+        }
+
+        function loadNotesFromLocalStorage() {
+            notes = JSON.parse(localStorage.getItem('mindbloc_notes')) || [];
+        }
+
+        function renderNotes() {
+            notesDisplay.innerHTML = ''; // Limpiar la lista actual
+            if (notes.length === 0) {
+                notesDisplay.innerHTML = '<p style="text-align: center; color: var(--text-light-color);">No hay notas guardadas. ¡Crea una!</p>';
+                return;
+            }
+
+            // Ordenar notas por fecha (más reciente primero)
+            notes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            notes.forEach(note => {
+                const noteItem = document.createElement('div');
+                noteItem.classList.add('note-item');
+                noteItem.innerHTML = `
+                    <div class="note-item-content">
+                        <h3>${note.title}</h3>
+                        <p>${note.content.substring(0, 100)}${note.content.length > 100 ? '...' : ''}</p>
+                        <p style="font-size: 0.8em; color: var(--text-light-color); margin-top: 5px;">${new Date(note.date).toLocaleString('es-ES')}</p>
+                    </div>
+                    <div class="note-item-actions">
+                        <button class="edit-note" data-id="${note.id}">Editar</button>
+                        <button class="delete-note" data-id="${note.id}">Eliminar</button>
+                        <button class="schedule-note" data-id="${note.id}">Agendar</button>
+                    </div>
+                `;
+                notesDisplay.appendChild(noteItem);
+            });
+
+            // Añadir event listeners a los botones de editar, eliminar y agendar
+            document.querySelectorAll('.edit-note').forEach(button => {
+                button.addEventListener('click', (e) => editNote(parseInt(e.target.dataset.id)));
+            });
+            document.querySelectorAll('.delete-note').forEach(button => {
+                button.addEventListener('click', (e) => deleteNote(parseInt(e.target.dataset.id)));
+            });
+            document.querySelectorAll('.schedule-note').forEach(button => {
+                button.addEventListener('click', (e) => scheduleNoteFromItem(parseInt(e.target.dataset.id)));
+            });
+        }
+
+        function saveNote() {
+            const title = noteTitle.value.trim();
+            const content = noteContent.value.trim();
+            const thirdPartyPhoneNumber = noteThirdPartyPhoneNumber.value.trim(); // Obtener el número de tercero
+
+            if (!title || !content) {
+                alert('Por favor, ingresa un título y contenido para la nota.');
+                return;
+            }
+
+            if (editingNoteId !== null) {
+                // Editar nota existente
+                const noteIndex = notes.findIndex(note => note.id === editingNoteId);
+                if (noteIndex !== -1) {
+                    notes[noteIndex].title = title;
+                    notes[noteIndex].content = content;
+                    notes[noteIndex].date = new Date().toISOString(); // Actualizar fecha de edición
+                    notes[noteIndex].thirdPartyPhoneNumber = thirdPartyPhoneNumber; // Guardar número de tercero
+                }
+                editingNoteId = null; // Resetear el modo de edición
+                saveNoteBtn.textContent = 'Guardar Nota';
+            } else {
+                // Crear nueva nota
+                if (notes.length >= MAX_NOTES) {
+                    alert(`Has alcanzado el límite de ${MAX_NOTES} notas. Elimina algunas para crear nuevas.`);
+                    return;
+                }
+                const newNote = {
+                    id: Date.now(),
+                    title: title,
+                    content: content,
+                    date: new Date().toISOString(),
+                    thirdPartyPhoneNumber: thirdPartyPhoneNumber // Guardar número de tercero
+                };
+                notes.push(newNote);
+            }
+
+            saveNotesToLocalStorage();
+            renderNotes();
+            clearNoteFields();
+        }
+
+        function editNote(id) {
+            const noteToEdit = notes.find(note => note.id === id);
+            if (noteToEdit) {
+                noteTitle.value = noteToEdit.title;
+                noteContent.value = noteToEdit.content;
+                noteThirdPartyPhoneNumber.value = noteToEdit.thirdPartyPhoneNumber || ''; // Cargar número de tercero
+                editingNoteId = id; // Establecer el ID de la nota que se está editando
+                saveNoteBtn.textContent = 'Actualizar Nota';
+                activateTab(tabPrincipalBtn, contentPrincipal); // Asegurarse de que la pestaña principal esté activa
+                // Desplazarse a la sección de notas si es necesario
+                noteTitle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                noteTitle.focus();
+            }
+        }
+
+        function deleteNote(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta nota?')) {
+                notes = notes.filter(note => note.id !== id);
+                saveNotesToLocalStorage();
+                renderNotes();
+                // Si la nota eliminada era la que se estaba editando, limpiar campos
+                if (editingNoteId === id) {
+                    clearNoteFields();
+                }
+            }
+        }
+
+        function clearNoteFields() {
+            noteTitle.value = '';
+            noteContent.value = '';
+            noteThirdPartyPhoneNumber.value = ''; // Limpiar el campo del número de tercero
+            editingNoteId = null;
+            saveNoteBtn.textContent = 'Guardar Nota';
+        }
+
+        // --- Función para pasar nota a agenda ---
+        function scheduleNoteFromItem(id) {
+            const noteToSchedule = notes.find(note => note.id === id);
+            if (noteToSchedule) {
+                // Copiar título y un fragmento del contenido al campo de recordatorio
+                const reminderContent = `${noteToSchedule.title}: ${noteToSchedule.content.substring(0, 50)}${noteToSchedule.content.length > 50 ? '...' : ''}`;
+                reminderText.value = reminderContent;
+                // Activar la pestaña principal y desplazar al formulario de recordatorio
+                activateTab(tabPrincipalBtn, contentPrincipal);
+                reminderText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                reminderText.focus();
+                alert('La nota ha sido copiada al campo de recordatorio. Por favor, selecciona la fecha y hora y haz clic en "Añadir a la Agenda".');
+            }
+        }
+
+
+        // --- Recordatorios con Notificaciones del Navegador y Mensaje en App ---
+
+        // Nueva función interna para agendar un recordatorio genérico
+        function _scheduleGenericReminder(text, initialDateTimeStr, recurrenceType, recurrenceValue, recurrenceEndDateStr, thirdPartyNumberForReminder, sourceId = null, sourceType = null) {
+            console.log('--- _scheduleGenericReminder START ---');
+            console.log('Text:', text, 'DateTime:', initialDateTimeStr, 'Type:', recurrenceType, 'Value:', recurrenceValue, 'EndDate:', recurrenceEndDateStr, 'WhatsApp:', thirdPartyNumberForReminder, 'SourceId:', sourceId, 'SourceType:', sourceType);
+
+            let initialTimestamp = new Date(initialDateTimeStr).getTime();
+            const currentTime = new Date().getTime();
+
+            let recurrenceEndDateTimestamp = null;
+            if (recurrenceEndDateStr) {
+                recurrenceEndDateTimestamp = new Date(recurrenceEndDateStr);
+                // Si es solo fecha, establecer la hora al final del día para que cubra todo el día
+                if (!initialDateTimeStr.includes('T')) { // Check if time part is missing
+                    recurrenceEndDateTimestamp.setHours(23, 59, 59, 999);
+                }
+                recurrenceEndDateTimestamp = recurrenceEndDateTimestamp.getTime();
+            }
+
+            if (initialTimestamp <= currentTime && recurrenceType === 'once') {
+                // Para recordatorios únicos, si la fecha es pasada, no se agenda
+                console.error('ERROR: One-time reminder date is in the past. Not scheduling.');
+                return null; // Indicar que no se pudo agendar
+            } else if (initialTimestamp <= currentTime && recurrenceType !== 'once') {
+                // Para recordatorios recurrentes, si la fecha inicial es pasada, ajustamos al futuro
+                let tempDate = new Date(initialTimestamp);
+                while (tempDate.getTime() <= currentTime) {
+                    if (recurrenceType === 'daily') {
+                        tempDate.setDate(tempDate.getDate() + 1);
+                    } else if (recurrenceType === 'hourly') {
+                        if (isNaN(recurrenceValue) || recurrenceValue <= 0) {
+                            console.error('ERROR: Invalid recurrence value during past recurrence adjustment for recurring reminder. Skipping.');
+                            return null;
+                        }
+                        tempDate.setHours(tempDate.getHours() + recurrenceValue);
+                    }
+                    if (recurrenceEndDateTimestamp && tempDate.getTime() > recurrenceEndDateTimestamp) {
+                        console.error('ERROR: Recurring reminder end date reached during adjustment. Not scheduling.');
+                        return null;
+                    }
+                }
+                initialTimestamp = tempDate.getTime();
+                console.log('Adjusted initialTimestamp for recurring reminder:', new Date(initialTimestamp).toLocaleString());
+            }
+
+            const newReminder = {
+                id: Date.now(),
+                text: text,
+                initialDateTime: initialDateTimeStr,
+                currentScheduledTimestamp: initialTimestamp,
+                thirdPartyPhoneNumber: thirdPartyNumberForReminder,
+                recurrence: {
+                    type: recurrenceType,
+                    value: recurrenceValue,
+                    endDate: recurrenceEndDateStr,
+                    endDateTimestamp: recurrenceEndDateTimestamp
+                },
+                sourceId: sourceId, // ID de la nota o monto si aplica
+                sourceType: sourceType // 'note', 'amount', 'manual'
+            };
+
+            reminders.push(newReminder);
+            saveReminders();
+            scheduleReminder(newReminder);
+            console.log('--- _scheduleGenericReminder END. New Reminder ID:', newReminder.id, '---');
+            return newReminder.id;
+        }
+
+        // La función addReminder original, ahora usa la función genérica
+        function addReminder() {
+            const text = reminderText.value.trim();
+            const initialDateTime = reminderDateTime.value;
+            const recurrenceType = document.querySelector('input[name="reminderFrequency"]:checked').value;
+            let recurrenceValue = null;
+            if (recurrenceType === 'hourly') {
+                recurrenceValue = parseInt(hourlyValue.value);
+            }
+            const recurrenceEndDateStr = recurrenceEndDate.value;
+            // El número de WhatsApp para recordatorios manuales ya no se toma de un input directo
+            const thirdPartyNumberForReminder = ''; 
+
+            if (!text || !initialDateTime) {
+                alert('Por favor, ingresa el texto y la fecha/hora del recordatorio.');
+                return;
+            }
+
+            const newReminderId = _scheduleGenericReminder(
+                text,
+                initialDateTime,
+                recurrenceType,
+                recurrenceValue,
+                recurrenceEndDateStr,
+                thirdPartyNumberForReminder, // Pasa vacío para recordatorios manuales
+                null, // No specific sourceId for manually added reminders
+                'manual' // Source type for manual reminders
+            );
+
+            if (newReminderId) {
+                alert('Recordatorio "' + text + '" añadido a la agenda.');
+                reminderText.value = '';
+                reminderDateTime.value = '';
+                freqOnce.checked = true;
+                hourlyValue.value = 1;
+                hourlyValue.disabled = true;
+                recurrenceEndDate.value = '';
+                recurrenceEndDateContainer.style.display = 'none';
+                renderReminders(); // Volver a renderizar la lista de recordatorios
+            } else {
+                alert('No se pudo añadir el recordatorio. Verifica la fecha y hora.');
+            }
+        }
+
+
+        function scheduleReminder(reminderObject) {
+            const delay = reminderObject.currentScheduledTimestamp - new Date().getTime();
+            console.log(`Scheduling reminder ID: ${reminderObject.id}, Text: "${reminderObject.text}", Next Trigger Time: ${new Date(reminderObject.currentScheduledTimestamp).toLocaleString()}, Delay: ${delay}ms`);
+            if (delay <= 0) {
+                console.log(`Reminder ID: ${reminderObject.id} is in the past or present, triggering immediately.`);
+                triggerReminder(reminderObject.id);
+            } else {
+                setTimeout(() => {
+                    triggerReminder(reminderObject.id);
+                }, delay);
+            }
+        }
+
+        function triggerReminder(id) {
+            let reminderIndex = reminders.findIndex(r => r.id === id);
+            if (reminderIndex === -1) {
+                console.log('Recordatorio ya procesado o eliminado:', id);
+                return;
+            }
+            let reminder = reminders[reminderIndex];
+            console.log('--- triggerReminder START ---');
+            console.log('Triggering reminder:', reminder.text, 'at', new Date().toLocaleString());
+
+            playNotificationSound(); // Reproducir sonido
+            showNotification(reminder.text); // Notificación del navegador
+            showReminderMessageBox(reminder); // Mensaje en la aplicación
+
+            // Manejar la recurrencia
+            if (reminder.recurrence.type === 'once') {
+                reminders.splice(reminderIndex, 1); // Eliminar recordatorio único
+                console.log('One-time reminder removed:', reminder.text);
+            } else {
+                let nextDate = new Date(reminder.currentScheduledTimestamp);
+                let originalNextDate = new Date(nextDate.getTime()); // For logging
+
+                if (reminder.recurrence.type === 'daily') {
+                    nextDate.setDate(nextDate.getDate() + 1);
+                } else if (reminder.recurrence.type === 'hourly') {
+                    if (isNaN(reminder.recurrence.value) || reminder.recurrence.value <= 0) {
+                        console.error('ERROR: Invalid recurrence value during next occurrence calculation. Removing reminder.', reminder);
+                        reminders.splice(reminderIndex, 1); // Remove problematic reminder
+                        saveReminders();
+                        renderReminders();
+                        return;
+                    }
+                    nextDate.setHours(nextDate.getHours() + reminder.recurrence.value);
+                }
+                console.log('Calculated next occurrence for recurring reminder:', nextDate.toLocaleString());
+
+                if (reminder.recurrence.endDateTimestamp && nextDate.getTime() > reminder.recurrence.endDateTimestamp) {
+                    // Si la próxima fecha excede la fecha de fin, eliminar el recordatorio
+                    reminders.splice(reminderIndex, 1);
+                    console.log('Recurring reminder finalizado:', reminder.text, 'due to end date.');
+                } else {
+                    // Actualizar y reprogramar
+                    reminder.currentScheduledTimestamp = nextDate.getTime();
+                    console.log('Recurring reminder updated from', originalNextDate.toLocaleString(), 'to', new Date(reminder.currentScheduledTimestamp).toLocaleString());
+                    scheduleReminder(reminder);
+                }
+            }
+            saveReminders();
+            renderReminders(); // Re-renderizar para reflejar cambios (eliminación o actualización)
+            console.log('--- triggerReminder END ---');
+        }
+
+
+        function showNotification(message) {
+            // Comprobar si las notificaciones son soportadas y si el permiso ha sido concedido
+            if (!("Notification" in window)) {
+                console.log("Este navegador no soporta notificaciones de escritorio.");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                new Notification("Recordatorio de MindBloc", {
+                    body: message,
+                    icon: 'icon-192x192.png'
+                });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification("Recordatorio de MindBloc", {
+                            body: message,
+                            icon: 'icon-192x192.png'
+                        });
+                    }
+                });
+            }
+        }
+
+        // Función para mostrar el mensaje de recordatorio en la aplicación
+        function showReminderMessageBox(reminder) {
+            currentActiveReminder = reminder; // Guardar el recordatorio completo
+            reminderMessageContent.textContent = reminder.text;
+
+            let whatsappButtonText = 'Enviar por WhatsApp';
+            let whatsappPhoneNumber = reminder.thirdPartyPhoneNumber;
+
+            // Si el recordatorio es de un monto, personalizar el botón y el número
+            if (reminder.sourceType === 'amount' && reminder.sourceId) {
+                const amount = amounts.find(a => a.id === reminder.sourceId);
+                if (amount) {
+                    whatsappPhoneNumber = amount.phoneNumber || reminder.thirdPartyPhoneNumber; // Usar el número del monto si existe
+                    if (amount.type === 'debt') {
+                        whatsappButtonText = `Enviar recordatorio de Cobro`;
+                    } else if (amount.type === 'payment') {
+                        whatsappButtonText = `Enviar recordatorio de Pago`;
+                    }
+                }
+            } else if (reminder.sourceType === 'note' && reminder.sourceId) {
+                const note = notes.find(n => n.id === reminder.sourceId);
+                if (note) {
+                    // Si la nota tiene un número, usarlo. Si no, usar el del recordatorio.
+                    whatsappPhoneNumber = note.thirdPartyPhoneNumber || reminder.thirdPartyPhoneNumber;
+                    messageContent = `¡Recordatorio de tu nota: *${note.title}*!\n\n"${note.content.substring(0, 150)}${note.content.length > 150 ? '...' : ''}"`;
+                }
+            }
+            
+            if (whatsappPhoneNumber) {
+                sendWhatsappBtn.textContent = whatsappButtonText;
+                sendWhatsappBtn.style.display = 'block'; // Mostrar el botón
+                sendWhatsappBtn.disabled = false; // Habilitar el botón
+            } else {
+                sendWhatsappBtn.textContent = 'No hay número para enviar por WhatsApp';
+                sendWhatsappBtn.style.display = 'block'; // Mostrar el botón
+                sendWhatsappBtn.disabled = true; // Deshabilitar el botón
+            }
+            
+            reminderMessageBox.style.display = 'flex'; // Mostrar el modal
+        }
+
+        function saveReminders() {
+            localStorage.setItem('mindbloc_reminders', JSON.stringify(reminders));
+        }
+
+        function loadReminders() {
+            console.log('--- loadReminders START ---');
+            reminders = JSON.parse(localStorage.getItem('mindbloc_reminders')) || [];
+            console.log('Reminders loaded from localStorage (raw):', JSON.parse(JSON.stringify(reminders))); // Deep copy to avoid mutation issues in log
+            const currentTime = new Date().getTime();
+            let updatedReminders = [];
+
+            reminders.forEach(r => {
+                console.log('Processing reminder ID:', r.id, 'Text:', r.text, 'Current Scheduled Timestamp (before adjustment):', new Date(r.currentScheduledTimestamp).toLocaleString(), 'Recurrence:', r.recurrence, 'SourceType:', r.sourceType);
+                if (r.recurrence && r.recurrence.type !== 'once') {
+                    // Para recordatorios recurrentes, ajustar la fecha de la próxima ocurrencia si ya pasó
+                    let tempDate = new Date(r.currentScheduledTimestamp);
+                    let originalTempDate = new Date(tempDate.getTime()); // For logging
+                    let adjusted = false;
+                    while (tempDate.getTime() <= currentTime) {
+                        adjusted = true;
+                        if (r.recurrence.type === 'daily') {
+                            tempDate.setDate(tempDate.getDate() + 1);
+                        } else if (r.recurrence.type === 'hourly') {
+                            // Ensure recurrence.value is a valid number before adding
+                            if (isNaN(r.recurrence.value) || r.recurrence.value <= 0) {
+                                console.error('ERROR: Invalid recurrence value found in loaded reminder during adjustment. Skipping this reminder.', r);
+                                tempDate = null; // Mark to skip this reminder
+                                break;
+                            }
+                            tempDate.setHours(tempDate.getHours() + r.recurrence.value);
+                        }
+                        // Si la fecha de fin existe y la próxima fecha excede la fecha de fin, no incluir
+                        if (r.recurrence.endDateTimestamp && tempDate.getTime() > r.recurrence.endDateTimestamp) {
+                            console.log('Recurring reminder ID:', r.id, 'reached end date during adjustment. Omitting.');
+                            tempDate = null; // Marcar para eliminación
+                            break;
+                        }
+                    }
+                    if (tempDate) { // Only if tempDate is not null (i.e., not marked for deletion)
+                        r.currentScheduledTimestamp = tempDate.getTime();
+                        if (adjusted) {
+                            console.log('Recurring reminder ID:', r.id, 'adjusted from', originalTempDate.toLocaleString(), 'to', new Date(r.currentScheduledTimestamp).toLocaleString());
+                        }
+                        updatedReminders.push(r);
+                        scheduleReminder(r); // Reprogramar la próxima ocurrencia
+                    }
+                } else if (r.currentScheduledTimestamp > currentTime) {
+                    // Para recordatorios únicos o recurrentes cuya próxima ocurrencia aún está en el futuro
+                    updatedReminders.push(r);
+                    scheduleReminder(r); // Programar
+                } else {
+                    console.log('One-time reminder ID:', r.id, 'is in the past or recurring reminder has ended. Omitting.');
+                }
+            });
+            reminders = updatedReminders;
+            saveReminders(); // Guardar la lista filtrada y actualizada
+            console.log('Reminders after filtering and rescheduling (final):', JSON.parse(JSON.stringify(reminders)));
+            console.log('--- loadReminders END ---');
+        }
+
+
+        function renderReminders() {
+            reminderList.innerHTML = '';
+            if (reminders.length === 0) {
+                reminderList.innerHTML = '<p style="text-align: center; color: var(--text-light-color);">No hay recordatorios pendientes.</p>';
+                return;
+            }
+            reminders.sort((a, b) => a.currentScheduledTimestamp - b.currentScheduledTimestamp); // Ordenar por próxima fecha/hora
+            reminders.forEach(reminder => {
+                const item = document.createElement('div');
+                item.classList.add('reminder-item');
+                const reminderDate = new Date(reminder.currentScheduledTimestamp); // Mostrar la próxima fecha
+                const formattedDate = reminderDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                const formattedTime = reminderDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                let recurrenceInfo = '';
+                if (reminder.recurrence.type === 'daily') {
+                    recurrenceInfo = ' (Diario)';
+                } else if (reminder.recurrence.type === 'hourly') {
+                    recurrenceInfo = ` (Cada ${reminder.recurrence.value} horas)`;
+                }
+                if (reminder.recurrence.endDate) {
+                    const endDate = new Date(reminder.recurrence.endDate).toLocaleDateString('es-ES');
+                    recurrenceInfo += ` hasta ${endDate}`;
+                }
+
+                let sourceTypeInfo = '';
+                if (reminder.sourceType === 'amount') {
+                    sourceTypeInfo = ' (Monto)';
+                } else if (reminder.sourceType === 'note') {
+                    sourceTypeInfo = ' (Nota)';
+                }
+
+                item.innerHTML = `
+                    <span>${reminder.text}${sourceTypeInfo} (${formattedDate} ${formattedTime})${recurrenceInfo}</span>
+                    <button class="delete-reminder" data-id="${reminder.id}">&times;</button>
+                `;
+                reminderList.appendChild(item);
+            });
+            // Añadir escuchadores para eliminar
+            document.querySelectorAll('.delete-reminder').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const idToDelete = parseInt(e.target.dataset.id);
+                    // Si el recordatorio tiene un sourceId (es de una nota o monto), no se puede eliminar directamente desde aquí.
+                    // Se debe eliminar desde la nota o monto original.
+                    const reminderToDelete = reminders.find(r => r.id === idToDelete);
+                    if (reminderToDelete && reminderToDelete.sourceId) {
+                        alert('Este recordatorio está vinculado a un registro de nota o monto. Por favor, elimínalo desde la sección correspondiente (Notas o Montos).');
+                        return;
+                    }
+
+                    reminders = reminders.filter(r => r.id !== idToDelete);
+                    saveReminders();
+                    renderReminders();
+                });
+            });
+        }
+
+        // --- Gestión de Montos ---
+        function saveAmountsToLocalStorage() {
+            localStorage.setItem('mindbloc_amounts', JSON.stringify(amounts));
+        }
+
+        function loadAmountsFromLocalStorage() {
+            console.log('--- loadAmountsFromLocalStorage START ---');
+            amounts = JSON.parse(localStorage.getItem('mindbloc_amounts')) || [];
+            let updatedAmounts = [];
+
+            amounts.forEach(amount => {
+                // Recalcular el saldo si no está presente o es incorrecto (para compatibilidad con versiones anteriores)
+                if (typeof amount.currentBalance === 'undefined' || amount.currentBalance === null) {
+                    amount.currentBalance = parseFloat(amount.totalAmount);
+                    if (amount.payments && amount.payments.length > 0) {
+                        amount.payments.forEach(p => {
+                            amount.currentBalance -= parseFloat(p.amount);
+                        });
+                    }
+                }
+                // Asegurar que el tipo de monto exista, por defecto 'debt'
+                if (typeof amount.type === 'undefined' || amount.type === null) {
+                    amount.type = 'debt';
+                }
+                // Asegurar que el número de teléfono exista, por defecto vacío
+                if (typeof amount.phoneNumber === 'undefined' || amount.phoneNumber === null) {
+                    amount.phoneNumber = '';
+                }
+                
+                // Re-crear/actualizar recordatorio si es necesario
+                if (amount.currentBalance > 0 && amount.dueDate) {
+                    let reminderExists = amount.reminderId && reminders.some(r => r.id === amount.reminderId);
+                    
+                    const reminderTextForAmount = `${amount.type === 'debt' ? 'Cobro Pendiente' : 'Pago Pendiente'}: ${amount.description} - Saldo: ${amount.currentBalance.toFixed(2)}`;
+
+                    if (!reminderExists) {
+                        console.log(`Re-agendando recordatorio para monto ID: ${amount.id} al cargar.`);
+                        const newReminderId = _scheduleGenericReminder(
+                            reminderTextForAmount,
+                            amount.dueDate, // Usar la fecha y hora completa
+                            'once',
+                            null, null, 
+                            amount.phoneNumber, // Pasar el número de WhatsApp del monto
+                            amount.id,
+                            'amount'
+                        );
+                        if (newReminderId) {
+                            amount.reminderId = newReminderId;
+                        } else {
+                            console.warn(`Fallo al re-agendar recordatorio para monto ID: ${amount.id}.`);
+                        }
+                    } else {
+                         // Si el recordatorio existe, asegurar que su texto y número estén actualizados
+                         const existingReminder = reminders.find(r => r.id === amount.reminderId);
+                         if (existingReminder) {
+                             existingReminder.text = reminderTextForAmount;
+                             existingReminder.thirdPartyPhoneNumber = amount.phoneNumber;
+                             // No es necesario reprogramar si solo cambia el texto y la hora sigue siendo válida
+                         }
+                    }
+                } else if (amount.currentBalance <= 0 && amount.reminderId) {
+                    // Si está completamente pagado, asegurar que el recordatorio se elimine
+                    console.log(`Eliminando recordatorio para monto ID: ${amount.id} (saldado) al cargar.`);
+                    reminders = reminders.filter(r => r.id !== amount.reminderId);
+                    amount.reminderId = null;
+                }
+                updatedAmounts.push(amount);
+            });
+            amounts = updatedAmounts;
+            saveAmountsToLocalStorage(); // Guardar cualquier cambio de recálculo o vinculación de recordatorios
+            saveReminders(); // Guardar el array de recordatorios si hubo cambios
+            console.log('--- loadAmountsFromLocalStorage END ---');
+        }
+
+
+        function addAmount() {
+            const description = amountDescriptionInput.value.trim();
+            const totalAmount = parseFloat(amountTotalInput.value);
+            const dueDate = amountDueDateInput.value; // Obtener la fecha y hora completa
+            const phoneNumber = amountPhoneNumber.value.trim(); // Obtener el número de WhatsApp para el monto
+            const type = document.querySelector('input[name="amountType"]:checked').value; // Obtener el tipo de monto
+
+            if (!description || isNaN(totalAmount) || totalAmount <= 0 || !dueDate) {
+                alert('Por favor, ingresa una descripción, un monto total válido, una fecha y hora de cobro/pago.');
+                return;
+            }
+
+            if (amounts.length >= MAX_AMOUNTS) {
+                alert(`Has alcanzado el límite de ${MAX_AMOUNTS} registros de montos. Elimina algunos para añadir nuevos.`);
+                return;
+            }
+
+            const newAmount = {
+                id: Date.now(),
+                description: description,
+                totalAmount: totalAmount,
+                currentBalance: totalAmount, // Inicialmente el saldo es el monto total
+                payments: [], // Array para almacenar los abonos
+                dueDate: dueDate, // Guardar la fecha y hora de cobro/pago
+                phoneNumber: phoneNumber, // Guardar el número de WhatsApp del monto
+                type: type, // Guardar el tipo de monto ('debt' o 'payment')
+                reminderId: null // Almacenará el ID del recordatorio asociado
+            };
+
+            // Crear un recordatorio para este monto
+            const reminderTextForAmount = `${newAmount.type === 'debt' ? 'Cobro Pendiente' : 'Pago Pendiente'}: ${description} - Saldo: ${newAmount.currentBalance.toFixed(2)}`;
+            
+            const reminderId = _scheduleGenericReminder(
+                reminderTextForAmount,
+                dueDate, // Usar la fecha y hora completa del input
+                'once', // Los recordatorios de montos son de una sola vez para la fecha de vencimiento
+                null, null, 
+                phoneNumber, // Pasar el número de WhatsApp del monto
+                newAmount.id,
+                'amount'
+            );
+
+            if (reminderId) {
+                newAmount.reminderId = reminderId; // Vincular el monto a su recordatorio
+                amounts.push(newAmount);
+                saveAmountsToLocalStorage();
+                renderAmounts();
+                amountDescriptionInput.value = '';
+                amountTotalInput.value = '';
+                amountDueDateInput.value = ''; // Limpiar el campo de fecha y hora
+                amountPhoneNumber.value = ''; // Limpiar el campo de número de WhatsApp
+                amountTypeDebt.checked = true; // Resetear a "Deuda (me deben)"
+                alert('Monto añadido correctamente y recordatorio agendado.');
+            } else {
+                alert('No se pudo añadir el monto o agendar el recordatorio. Verifica la fecha y hora.');
+            }
+        }
+
+        function openAddPaymentModal(id) {
+            const amountToPay = amounts.find(a => a.id === id);
+            if (amountToPay) {
+                currentAmountIdForPayment = id;
+                paymentModalDescription.textContent = amountToPay.description;
+                paymentModalBalance.textContent = amountToPay.currentBalance.toFixed(2);
+                paymentAmountInput.value = ''; // Limpiar el campo del abono
+                addPaymentModal.style.display = 'flex'; // Mostrar el modal
+            }
+        }
+
+        function savePayment() {
+            const paymentAmount = parseFloat(paymentAmountInput.value);
+
+            if (isNaN(paymentAmount) || paymentAmount <= 0) {
+                alert('Por favor, ingresa un monto de abono válido (mayor que 0).');
+                return;
+            }
+
+            const amountIndex = amounts.findIndex(a => a.id === currentAmountIdForPayment);
+            if (amountIndex !== -1) {
+                const amount = amounts[amountIndex];
+                if (paymentAmount > amount.currentBalance) {
+                    alert('El abono no puede ser mayor que el saldo pendiente.');
+                    return;
+                }
+                amount.currentBalance -= paymentAmount;
+                amount.payments.push({
+                    amount: paymentAmount,
+                    date: new Date().toISOString()
+                });
+
+                // Actualizar o eliminar el recordatorio asociado
+                if (amount.currentBalance <= 0 && amount.reminderId) {
+                    // Monto completamente pagado, eliminar recordatorio
+                    reminders = reminders.filter(r => r.id !== amount.reminderId);
+                    amount.reminderId = null; // Limpiar el vínculo
+                    saveReminders();
+                    console.log(`Recordatorio para monto ID ${amount.id} eliminado porque está completamente pagado.`);
+                } else if (amount.reminderId) {
+                    // Pago parcial, actualizar texto del recordatorio
+                    const reminderToUpdate = reminders.find(r => r.id === amount.reminderId);
+                    if (reminderToUpdate) {
+                        reminderToUpdate.text = `${amount.type === 'debt' ? 'Cobro Pendiente' : 'Pago Pendiente'}: ${amount.description} - Saldo restante: ${amount.currentBalance.toFixed(2)}`;
+                        saveReminders(); // Guardar cambios en el texto del recordatorio
+                        console.log(`Texto del recordatorio para monto ID ${amount.id} actualizado.`);
+                    }
+                }
+
+                saveAmountsToLocalStorage();
+                renderAmounts();
+                addPaymentModal.style.display = 'none';
+                alert('Abono registrado correctamente.');
+            } else {
+                alert('Error: Monto no encontrado para añadir abono.');
+            }
+            currentAmountIdForPayment = null;
+        }
+
+        function deleteAmount(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este registro de monto?')) {
+                const amountToDelete = amounts.find(amount => amount.id === id);
+                if (amountToDelete && amountToDelete.reminderId) {
+                    reminders = reminders.filter(r => r.id !== amountToDelete.reminderId);
+                    saveReminders();
+                    console.log(`Recordatorio para monto ID ${id} eliminado debido a la eliminación del monto.`);
+                }
+                amounts = amounts.filter(amount => amount.id !== id);
+                saveAmountsToLocalStorage();
+                renderAmounts();
+                alert('Registro de monto eliminado.');
+            }
+        }
+
+        function renderAmounts() {
+            amountsDisplay.innerHTML = '';
+            if (amounts.length === 0) {
+                amountsDisplay.innerHTML = '<p style="text-align: center; color: var(--text-light-color);">No hay montos registrados.</p>';
+                return;
+            }
+
+            amounts.forEach(amount => {
+                const amountItem = document.createElement('div');
+                amountItem.classList.add('amount-item');
+
+                const balanceClass = amount.currentBalance > 0 ? 'negative' : 'positive';
+                const balanceText = amount.currentBalance.toFixed(2);
+
+                let paymentsHtml = '';
+                if (amount.payments && amount.payments.length > 0) {
+                    paymentsHtml = '<strong>Abonos:</strong><br>';
+                    amount.payments.forEach(p => {
+                        paymentsHtml += `<span>- ${parseFloat(p.amount).toFixed(2)} (${new Date(p.date).toLocaleDateString('es-ES')})</span><br>`;
+                    });
+                }
+
+                const dueDateObj = new Date(amount.dueDate);
+                const formattedDueDate = dueDateObj.toLocaleDateString('es-ES');
+                const formattedDueTime = dueDateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                const dueDateText = amount.dueDate ? `Fecha/Hora: ${formattedDueDate} ${formattedDueTime}` : '';
+                const typeText = amount.type === 'debt' ? 'Deuda' : 'Pago';
+
+                amountItem.innerHTML = `
+                    <div class="amount-item-header">
+                        <h3>${amount.description} (${typeText})</h3>
+                        <span class="amount-item-balance ${balanceClass}">Saldo: ${balanceText}</span>
+                    </div>
+                    <div class="amount-item-details">
+                        Monto Total: ${parseFloat(amount.totalAmount).toFixed(2)}<br>
+                        ${dueDateText}<br>
+                        Número: ${amount.phoneNumber || 'N/A'}
+                    </div>
+                    <div class="amount-item-payments">
+                        ${paymentsHtml}
+                    </div>
+                    <div class="amount-item-actions">
+                        <button class="add-payment-btn" data-id="${amount.id}">Añadir Abono</button>
+                        <button class="delete-amount" data-id="${amount.id}">Eliminar</button>
+                    </div>
+                `;
+                amountsDisplay.appendChild(amountItem);
+            });
+
+            // Añadir event listeners a los botones de añadir abono y eliminar
+            document.querySelectorAll('.add-payment-btn').forEach(button => {
+                button.addEventListener('click', (e) => openAddPaymentModal(parseInt(e.target.dataset.id)));
+            });
+            document.querySelectorAll('.delete-amount').forEach(button => {
+                button.addEventListener('click', (e) => deleteAmount(parseInt(e.target.dataset.id)));
+            });
+        }
+
+        // --- Enviar Recordatorio por WhatsApp (Iniciado por el Usuario) ---
+        sendWhatsappBtn.addEventListener('click', () => {
+            console.log('--- sendWhatsappBtn click START ---');
+            console.log('currentActiveReminder:', currentActiveReminder);
+
+            let phoneNumberToSend = currentActiveReminder.thirdPartyPhoneNumber;
+            let messageContent = currentActiveReminder.text;
+            let whatsappSpecificMessage = ''; // Mensaje específico para montos
+
+            // Si el recordatorio es de un monto, personalizar el mensaje
+            if (currentActiveReminder.sourceType === 'amount' && currentActiveReminder.sourceId) {
+                const amount = amounts.find(a => a.id === currentActiveReminder.sourceId);
+                if (amount) {
+                    phoneNumberToSend = amount.phoneNumber || currentActiveReminder.thirdPartyPhoneNumber; // Usar el número del monto
+                    const formattedBalance = amount.currentBalance.toFixed(2);
+                    if (amount.type === 'debt') {
+                        whatsappSpecificMessage = `¡Hola! Te escribo para recordarte sobre la deuda pendiente de *${amount.description}*. El saldo actual es de *${formattedBalance}*. ¡Agradezco tu pronta atención!`;
+                    } else if (amount.type === 'payment') {
+                        whatsappSpecificMessage = `¡Hola! Este es un recordatorio de que tengo un pago pendiente de *${amount.description}* por un saldo de *${formattedBalance}*. Te confirmo cuando esté realizado.`;
+                    }
+                    messageContent = whatsappSpecificMessage; // Usar el mensaje específico
+                }
+            } else if (currentActiveReminder.sourceType === 'note' && currentActiveReminder.sourceId) {
+                const note = notes.find(n => n.id === currentActiveReminder.sourceId);
+                if (note) {
+                    // Si la nota tiene un número, usarlo. Si no, usar el del recordatorio.
+                    phoneNumberToSend = note.thirdPartyPhoneNumber || currentActiveReminder.thirdPartyPhoneNumber;
+                    messageContent = `¡Recordatorio de tu nota: *${note.title}*!\n\n"${note.content.substring(0, 150)}${note.content.length > 150 ? '...' : ''}"`;
+                }
+            }
+
+            if (!phoneNumberToSend) {
+                alert('No hay un número de WhatsApp de tercero asociado a este recordatorio.');
+                console.error('ERROR: No phone number to send WhatsApp.');
+                return;
+            }
+
+            const reminderDateTimeObj = new Date(currentActiveReminder.currentScheduledTimestamp);
+            const formattedDate = reminderDateTimeObj.toLocaleDateString('es-ES');
+            const formattedTime = reminderDateTimeObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            // Get the current page URL for the download link
+            const appDownloadLink = window.location.href.split('?')[0].split('#')[0]; // Clean URL
+
+            const whatsappText = `${messageContent}\n\nFecha y Hora Agendada: ${formattedDate} ${formattedTime}\n\nAhora no olvidas lo importante gracias a MindBloc.\n\nDescarga MindBloc aquí: ${appDownloadLink}\n\n[Espacio para Publicidad Aquí]`;
+
+            // Codificar el mensaje para la URL
+            const encodedText = encodeURIComponent(whatsappText);
+            const whatsappUrl = `https://wa.me/${phoneNumberToSend}?text=${encodedText}`;
+
+            console.log('Phone Number to Send:', phoneNumberToSend);
+            console.log('WhatsApp Message (raw):', whatsappText);
+            console.log('WhatsApp URL:', whatsappUrl);
+
+            window.open(whatsappUrl, '_blank'); // Abre WhatsApp en una nueva pestaña/ventana
+            reminderMessageBox.style.display = 'none'; // Cerrar el modal después de intentar enviar
+            console.log('--- sendWhatsappBtn click END ---');
+        });
+
+        // --- Funcionalidad de alternar tema de colores ---
+        function cycleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const newTheme = themes[currentThemeIndex];
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            // Re-renderizar notas y recordatorios para aplicar los nuevos colores de las tarjetas
+            renderNotes();
+            renderReminders();
+            renderAmounts(); // Nuevo: Re-renderizar montos
+        }
+
+        // Cargar tema guardado o usar el primer tema por defecto
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme && themes.includes(savedTheme)) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+                currentThemeIndex = themes.indexOf(savedTheme);
+            } else {
+                htmlElement.setAttribute('data-theme', themes[0]); // Establecer el tema predeterminado (warm)
+                currentThemeIndex = 0;
+            }
+        }
+        loadTheme(); // Cargar tema al inicio
+
+        themeToggle.addEventListener('click', cycleTheme);
+
+        // --- Funcionalidad del carrusel de banners (usa datos incrustados) ---
+        function showNextBanner() {
+            if (banners.length > 0) {
+                // Establecer el contenido del iframe con el HTML del banner actual
+                bannerIframe.srcdoc = banners[currentBannerIndex];
+                currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+            } else {
+                bannerIframe.srcdoc = `<div style="display:flex; align-items:center; justify-content:center; height:100%; background-color:#eee; color:#666; font-style:italic; border-radius:5px;">Cargando publicidad...</div>`;
+            }
+        }
+
+        // Iniciar el carrusel automáticamente
+        let bannerInterval;
+        function startBannerCarousel() {
+            if (bannerInterval) clearInterval(bannerInterval); // Limpiar cualquier intervalo existente
+            bannerInterval = setInterval(showNextBanner, bannerIntervalTime);
+        }
+
+        // --- Funcionalidad del modal de instalación (y otros modales) ---
+        installAppBtn.addEventListener('click', () => {
+            installModal.style.display = 'flex'; // Usar flex para centrar
+        });
+
+        // Event listeners para los botones de cerrar modales
+        document.querySelectorAll('.close-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const modalId = e.target.dataset.modalId;
+                document.getElementById(modalId).style.display = 'none';
+            });
+        });
+
+        // Ocultar cualquier modal al hacer clic fuera de su contenido
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+
+        // --- Código PWA (Progressive Web App) para "descargabilidad" ---
+        // Generar y registrar el Service Worker y Manifest dinámicamente
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // 1. Crear Blob para el Service Worker
+                const swBlob = new Blob([swContent], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+
+                // 2. Registrar el Service Worker
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('ServiceWorker registrado con éxito:', registration);
+                        // Liberar la URL del Blob después del registro
+                        URL.revokeObjectURL(swUrl);
+                    })
+                    .catch(registrationError => {
+                        console.log('Fallo el registro del ServiceWorker:', registrationError);
+                    });
+
+                // 3. Crear Blob para el Manifest
+                const manifestBlob = new Blob([JSON.stringify(manifestContent)], { type: 'application/json' });
+                const manifestUrl = URL.createObjectURL(manifestBlob);
+
+                // 4. Asignar la URL del Blob al link del manifest
+                const dynamicManifestLink = document.getElementById('dynamicManifestLink');
+                dynamicManifestLink.href = manifestUrl;
+            });
+        }
+
+        // --- Manejo de la visibilidad del campo de horas y fecha de fin ---
+        document.querySelectorAll('input[name="reminderFrequency"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (freqHourly.checked) {
+                    hourlyValue.disabled = false;
+                    recurrenceEndDateContainer.style.display = 'block';
+                } else if (freqDaily.checked) {
+                    hourlyValue.disabled = true;
+                    recurrenceEndDateContainer.style.display = 'block';
+                } else { // 'once'
+                    hourlyValue.disabled = true;
+                    recurrenceEndDateContainer.style.display = 'none';
+                }
+            });
+        });
+
+        // Asegura que hourlyValue siempre sea un número positivo
+        function enforcePositiveNumber() {
+            let value = parseInt(hourlyValue.value);
+            if (isNaN(value) || value <= 0) {
+                hourlyValue.value = 1; // Restablecer a 1 si es inválido
+            }
+        }
+        hourlyValue.addEventListener('input', enforcePositiveNumber);
+        hourlyValue.addEventListener('blur', enforcePositiveNumber); // También al perder el foco
+
+        // --- Funcionalidad de Pestañas ---
+        function activateTab(tabButton, contentDiv) {
+            // Desactivar todas las pestañas y ocultar todos los contenidos
+            document.querySelectorAll('.segmented-control button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+
+            // Activar la pestaña y mostrar el contenido correspondiente
+            tabButton.classList.add('active');
+            contentDiv.classList.add('active');
+
+            // Si la pestaña principal está activa, asegurar que el botón "Nueva Nota" sea visible
+            if (tabButton.id === 'tabPrincipal') {
+                newNoteBtn.style.display = 'inline-block'; 
+                // Si no estamos en modo edición, limpiar los campos de nota
+                if (editingNoteId === null) {
+                    clearNoteFields(); 
+                }
+            } else {
+                newNoteBtn.style.display = 'none'; // Ocultar "Nueva Nota" en otras pestañas
+            }
+            
+            // Renderizar la lista de la pestaña activa
+            if (contentDiv.id === 'contentPrincipal') {
+                renderNotes();
+                renderReminders(); // Asegurarse de renderizar recordatorios también
+            } else if (contentDiv.id === 'contentFinanzas') { 
+                renderAmounts();
+            }
+        }
+
+        // Event listeners para las pestañas
+        tabPrincipalBtn.addEventListener('click', () => activateTab(tabPrincipalBtn, contentPrincipal));
+        tabFinanzasBtn.addEventListener('click', () => activateTab(tabFinanzasBtn, contentFinanzas));
+
+        // Event listener para el botón "Nueva Nota"
+        newNoteBtn.addEventListener('click', () => {
+            clearNoteFields(); // Limpiar campos para una nueva nota
+            noteTitle.focus(); // Poner el foco en el título de la nota
+        });
+
+
+        // --- Inicialización al cargar la página ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar datos en el orden correcto para asegurar la vinculación de recordatorios
+            loadNotesFromLocalStorage();
+            loadAmountsFromLocalStorage(); // Cargar montos primero
+            loadReminders(); // Luego cargar recordatorios, para que los vinculados a montos puedan ser recreados si es necesario
+
+            // Renderizar todas las listas (se harán al activar la pestaña por defecto)
+            // renderNotes();
+            // renderReminders();
+            // renderAmounts();
+            
+            // Asignar event listeners a los botones
+            saveNoteBtn.addEventListener('click', saveNote);
+            addReminderBtn.addEventListener('click', addReminder);
+            addAmountBtn.addEventListener('click', addAmount); // Listener para añadir monto
+            savePaymentBtn.addEventListener('click', savePayment); // Listener para guardar abono
+
+            // Inicializar la primera pestaña activa (Notas y Agenda por defecto)
+            activateTab(tabPrincipalBtn, contentPrincipal);
+
+            // Iniciar el carrusel de banners inmediatamente con los datos incrustados
+            showNextBanner(); 
+            startBannerCarousel(); 
+        });
+    </script>
+</body>
+</html>
